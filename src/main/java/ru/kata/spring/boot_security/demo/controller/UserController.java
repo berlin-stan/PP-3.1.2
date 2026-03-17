@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RoleRepository roleRepository) {
         this.userService = userService;
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("/")
@@ -41,6 +44,7 @@ public class UserController {
     @GetMapping("/admin/addUser")
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("allRoles", roleRepository.findAll());
         return "user-form";
     }
 
@@ -49,8 +53,9 @@ public class UserController {
                            @RequestParam("name") String name,
                            @RequestParam("email") String email,
                            @RequestParam("age") int age,
-                           @RequestParam("password") String password) {
-        userService.saveOrUpdateUser(id, name, email, age, password);
+                           @RequestParam("password") String password,
+                           @RequestParam(value = "roleIds", required = false) Long[] roleIds) {
+        userService.saveOrUpdateUser(id, name, email, age, password, roleIds);
         return "redirect:/admin/users";
     }
 
@@ -58,6 +63,7 @@ public class UserController {
     public String showEditForm(@RequestParam("id") Long id, Model model) {
         User user = userService.getUserById(id);
         model.addAttribute("user", user);
+        model.addAttribute("allRoles", roleRepository.findAll());  // ЭТО ДОБАВИТЬ
         return "user-form";
     }
 

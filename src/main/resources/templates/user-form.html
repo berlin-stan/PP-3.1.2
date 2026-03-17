@@ -20,7 +20,19 @@
   <input type="number" name="age" th:value="${user.age}" required><br>
 
   <label>Password:</label>
-  <input type="password" name="password" required><br>
+  <input type="password" name="password"
+         th:placeholder="${user.id} != null ? 'Leave blank to keep current' : ''"
+         th:required="${user.id} == null"><br>
+
+  <!-- ВЫБОР РОЛЕЙ -->
+  <div style="margin: 10px 0;">
+    <label>Roles:</label>
+    <div th:each="role : ${allRoles}">
+      <input type="checkbox" name="roleIds" th:value="${role.id}"
+             th:checked="${user.roles != null && user.roles.contains(role)}" />
+      <label th:text="${role.name}"></label>
+    </div>
+  </div>
 
   <button type="submit">Save</button>
   <a th:href="@{/admin/users}">Cancel</a>
